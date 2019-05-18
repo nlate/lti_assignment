@@ -15,7 +15,6 @@ studentDB = StudentDAO()
 @studentAPI.route('/student/all', methods=['GET'])
 def get_all_student():
     try:
-        print("student data")
         data = list(studentDB.get_students())
         print(data)
         return jsonify({"message": "Students data retrieved successfully", "status": "success", "data" : data}), 200
@@ -36,13 +35,14 @@ def get_student_by_id(_id):
 @studentAPI.route('/student/add', methods=['POST'])
 def add_student():
     try:
-        data = dict(request.json)
-        print(data)
-        data["created_on"] = None
-        data["updated_on"] = None
-        res = studentDB.add_student(data)
-        print(res)
-        return jsonify({"message": "Students data retrieved successfully", "status": "failed"}), 200
+        data = request.json
+        if data.get("id") is None or data.get("name") or data.get("class_id"):
+            return jsonify({"message": "Mandatory fields name, id, class_id missing in the request", "status": "failed"}), 404
+        else:
+            data["created_on"] = None
+            data["updated_on"] = None
+            res = studentDB.add_student(data)
+            return jsonify({"message": "Students data retrieved successfully", "status": "failed"}), 200
     except Exception as e:
         jsonify({"message": str(e), "status": "failed"}), 404    
 
